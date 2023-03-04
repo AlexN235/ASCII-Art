@@ -69,12 +69,9 @@ class ASCIIConverter:
     def convert(self):
         self._image_to_blocks()
         self._grey_to_ascii()
-        
-    def display(self):
-        for row in self.picture:
-            for x in row:
-                print(x, sep='', end='', flush=True)
-            print("")
+    
+    def get_ascii(self):
+        return self.picture
         
 if __name__ == "__main__":
     main()
