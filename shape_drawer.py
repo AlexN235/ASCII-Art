@@ -8,8 +8,9 @@ def main():
     sd.drawHalfSphere(10)
     for i in range(18):
         sd.rotate('x')
-    
+
     plot3D(sd.getShape())
+    print(sd.project())
     
 def plot3D(shape):
     ## Plots down a shape based on 3d matrix
@@ -76,8 +77,8 @@ class ShapeDrawer:
                     self.shape[idx[0]][idx[1]][idx[2]] = 1
         self.rotated_shape = self.shape
         
-    def drawHalfSphere(self, r):
-        grid_size = int(3*r)
+    def drawHalfSphere(self, radius):
+        grid_size = int(3*radius)
         self.shape = np.zeros((grid_size, grid_size, grid_size))
         self.center = {
             'x': grid_size/2,
@@ -102,7 +103,7 @@ class ShapeDrawer:
                      
     def rotate(self, rotation_axis):
         """
-        Rotate the shape along an axis.
+        Rotate the shape along an axis. Either 'x', 'y', or 'z'.
         """  
         self.times_rotated = (self.times_rotated + 1) % 8
         size = np.shape(self.rotated_shape)
@@ -112,7 +113,6 @@ class ShapeDrawer:
         other_axis.remove(rotation_axis)
         t1, t2 = other_axis
 
-        
         for idx in np.ndindex(size):
             if self.shape[idx[0]][idx[1]][idx[2]] == 0:
                 continue
@@ -139,5 +139,16 @@ class ShapeDrawer:
     def getShape(self):
         return self.rotated_shape
         
+    def project(self):
+        """
+        project 3D model into 2D image Simply flatten on an axis.
+        """
+        res = np.zeros(np.shape(self.rotated_shape[0]))
+        for i, layer in enumerate(self.rotated_shape):
+            depth = i / np.shape(self.shape)[0]
+            for j, row in enumerate(layer):
+                res[j] = list(map(lambda x, y: x if x*depth > 0.05 else y*depth, res[j],row))
+        return res
+         
 if __name__ == "__main__":
     main()
