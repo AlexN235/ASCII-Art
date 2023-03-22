@@ -96,7 +96,7 @@ class ShapeDrawer:
             z2 = (idx[2]-self.center['z'])**2
             d = int(math.sqrt(x2 + y2 + z2))
             
-            if d == r:
+            if d == radius:
                 self.shape[idx[0]][idx[1]][idx[2]] = 1
         self.rotated_shape = self.shape
 
@@ -105,7 +105,7 @@ class ShapeDrawer:
         """
         Rotate the shape along an axis. Either 'x', 'y', or 'z'.
         """  
-        self.times_rotated = (self.times_rotated + 1) % 8
+        self.times_rotated = (self.times_rotated + 1) % 16
         size = np.shape(self.rotated_shape)
         new_shape = np.zeros(size)
         
@@ -147,8 +147,13 @@ class ShapeDrawer:
         for i, layer in enumerate(self.rotated_shape):
             depth = i / np.shape(self.shape)[0]
             for j, row in enumerate(layer):
-                res[j] = list(map(lambda x, y: x if x*depth > 0.05 else y*depth, res[j],row))
-        return res
+                res[j] = list(map(lambda x, y: x if x > 0.05 else y*depth, res[j],row))
+        return np.array(list(map(lambda x: 255*(1-x), res)))
+        
+    def _toHexScale(self, value: int):
+        if value > 1 or value < 0:
+            return 0 # error
+        return value*255
          
 if __name__ == "__main__":
     main()

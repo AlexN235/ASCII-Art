@@ -5,7 +5,6 @@ from PIL import Image
 def main():
     s = ASCIIConverter('greygrid.png')
     s.convert()
-    s.display()
     
     del s
 
@@ -27,8 +26,10 @@ class ASCIIConverter:
         if type(img) == str:
             self.img = Image.open(img)
             self._convert_to_greyscale()
-        elif type(img) == list:
+            self.shape = self.img.size
+        elif type(img) == np.ndarray:
             self.img = img
+            self.shape = self.img.shape
         else:
             ## return error
             print("fail to grab image")
@@ -37,7 +38,7 @@ class ASCIIConverter:
         self.img.convert('L')
         
     def _image_to_blocks(self):
-        l, w = self.img.size
+        l, w = self.shape
         self.img = np.asarray(self.img)
         
         for i in range(int(w/self.box_size)):
