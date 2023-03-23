@@ -27,9 +27,11 @@ def plot3D(shape):
 
 class ShapeDrawer:
     """
-    Draw different shapes: cube, sphere, cylinder etc.
-    Rotate shapes
+    Draw different shapes: cube, sphere, cylinder etc. Represents these
+    shapes in a 3D numpy matrix. Rotate shapes on different axis.
     """
+    DIMENSION_MULTIPLE_SIZE = 1.5
+    
     def __init__(self):
         self.shape = []
         self.rotated_shape = []
@@ -46,11 +48,15 @@ class ShapeDrawer:
         }
         
     def drawCube(self, l, w, h):
-        self.shape = np.zeros((int(1.5*l), int(1.5*h), int(1.5*w)))
+        self.shape = np.zeros((
+            int(self.DIMENSION_MULTIPLE_SIZE*l),
+            int(self.DIMENSION_MULTIPLE_SIZE*h),
+            int(self.DIMENSION_MULTIPLE_SIZE*w),
+            ))
         self.center = {
-            'x': int(1.5*l/2),
-            'y': int(1.5*h/2),
-            'z': int(1.5*w/2),
+            'x': self.shape[0]/2),
+            'y': self.shape[1]/2),
+            'z': self.shape[2]/2),
         }
         x0 = self.center['x'] - l/2
         x1 = self.center['x'] + l/2
@@ -78,7 +84,7 @@ class ShapeDrawer:
         self.rotated_shape = self.shape
         
     def drawHalfSphere(self, radius):
-        grid_size = int(3*radius)
+        grid_size = int(2*self.DIMENSION_MULTIPLE_SIZE*radius)
         self.shape = np.zeros((grid_size, grid_size, grid_size))
         self.center = {
             'x': grid_size/2,
@@ -90,12 +96,10 @@ class ShapeDrawer:
             ## distance formula d=sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
             if idx[1] < self.center['z']:
                continue
-            
             x2 = (idx[0]-self.center['x'])**2
             y2 = (idx[1]-self.center['y'])**2
             z2 = (idx[2]-self.center['z'])**2
             d = int(math.sqrt(x2 + y2 + z2))
-            
             if d == radius:
                 self.shape[idx[0]][idx[1]][idx[2]] = 1
         self.rotated_shape = self.shape
@@ -137,11 +141,14 @@ class ShapeDrawer:
             temp_model[x][y][idx[2]] = self.shape[idx[0]][idx[1]][idx[2]]
             
     def getShape(self):
+        """ 
+        returns the represented shape on the 3D plane.
+        """
         return self.rotated_shape
         
     def project(self):
         """
-        project 3D model into 2D image Simply flatten on an axis.
+        project 3D model into 2D image by simply flatten on an plane.
         """
         res = np.zeros(np.shape(self.rotated_shape[0]))
         for i, layer in enumerate(self.rotated_shape):

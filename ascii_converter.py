@@ -2,27 +2,21 @@
 import numpy as np
 from PIL import Image
 
-def main():
-    s = ASCIIConverter('greygrid.png')
-    s.convert()
-    
-    del s
-
 class ASCIIConverter:
     """
-    - Convert image to greyscale
-    - Seperate image in blocks
-    - Convert blocks into values related to the greyscale
-    - recreate the image using ascii letters to represent each value in greyscale
-    - display the ascii image
+    Takes an image or 2D array and converts it into an ascii image.
+    Ex. 
+    s = ASCIIConverter('greygrid.png')
+    s.convert()
+    res = s.get_ascii()
     """
-
     def __init__(self, img, box_size = 10):
         self.keys = list("$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'.")
         self.keys_len = len(self.keys)
         self.box_size = box_size
-        self.picture = []
+        self.picture = []   # ascii image
         
+        # img is our original image or representation of an image.
         if type(img) == str:
             self.img = Image.open(img)
             self._convert_to_greyscale()
@@ -35,9 +29,11 @@ class ASCIIConverter:
             print("fail to grab image")
 
     def _convert_to_greyscale(self):
+        """ Convert image to greyscale """
         self.img.convert('L')
         
     def _image_to_blocks(self):
+        """ Seperate image in blocks """
         l, w = self.shape
         self.img = np.asarray(self.img)
         
@@ -57,6 +53,10 @@ class ASCIIConverter:
         return np.sum(boxImg) / boxImg.size
         
     def _grey_to_ascii(self):
+        """ 
+        Convert blocks into values related to the greyscale and recreate 
+        the image using ascii letters to represent each value in greyscale
+        """
         res = []
         l, w = self.picture.shape
         for i in range(w):
@@ -68,11 +68,11 @@ class ASCIIConverter:
         self.picture = res
         
     def convert(self):
+        """ Converts the original image/2D array into an ascii image """
         self._image_to_blocks()
         self._grey_to_ascii()
     
     def get_ascii(self):
+        """ returns the ascii representation of the image """
         return self.picture
         
-if __name__ == "__main__":
-    main()

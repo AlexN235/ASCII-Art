@@ -8,7 +8,13 @@ import time
 def main():
     displayer = ASCIIDisplayer()
     displayer.displayGif()
-    
+
+    """
+    TO DO:
+        - make displayGif function change the image change based on time.
+        - rotated along multiple axis.
+        - 
+    """
 class ASCIIDisplayer:
     def __init__(self):
         self.drawer = ShapeDrawer()
@@ -17,6 +23,9 @@ class ASCIIDisplayer:
         self.converter.convert()
          
     def display(self):
+        """
+        prints the ascii art of the contained shape.
+        """
         os.system('cls')
         ascii_img = np.array(self.converter.get_ascii())
         l, w = ascii_img.shape
@@ -27,6 +36,9 @@ class ASCIIDisplayer:
             print("")
             
     def displayGif(self):
+        """
+        displays an animated gif of a rotating shape in ascii art.
+        """
         end = True
         while(end):
             self.display()
