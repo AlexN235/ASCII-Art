@@ -1,12 +1,12 @@
 #!/usr/bin/python
 import numpy as np
-from ascii_converter import ASCIIConverter
-from shape_drawer import ShapeDrawer
 import os
 import time
+from ascii_converter import ASCIIConverter
+from shape_drawer import ShapeDrawer
 
 def main():
-    displayer = ASCIIDisplayer()
+    displayer = ASCIIDisplayer('cube')
     displayer.displayGif()
 
     """
@@ -16,9 +16,13 @@ def main():
         - 
     """
 class ASCIIDisplayer:
-    def __init__(self):
+    ANIMATION_TIMER = 0.5
+    def __init__(self, shape = 'halfsphere'):
         self.drawer = ShapeDrawer()
-        self.drawer.drawHalfSphere(10)
+        if shape == 'halfsphere':
+           self.drawer.drawHalfSphere(10)
+        elif shape == 'cube':
+            self.drawer.drawCube(10, 10, 10)
         self.converter = ASCIIConverter(self.drawer.project(), 1)
         self.converter.convert()
          
@@ -35,7 +39,7 @@ class ASCIIDisplayer:
                 print(x+' ', sep='', end='', flush=True)
             print("")
             
-    def displayGif(self):
+    def displayGif(self, shape = 'halfsphere'):
         """
         displays an animated gif of a rotating shape in ascii art.
         """
@@ -45,9 +49,7 @@ class ASCIIDisplayer:
             self.drawer.rotate('x')
             self.converter = ASCIIConverter(self.drawer.project(), 1)
             self.converter.convert()
-            end = input("")
-            if end == " ":
-                end = False
+            time.sleep(self.ANIMATION_TIMER)
 
 if __name__ == "__main__":
     main()

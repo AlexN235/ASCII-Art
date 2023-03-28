@@ -5,7 +5,7 @@ import math
 
 def main():
     sd = ShapeDrawer()
-    sd.drawHalfSphere(10)
+    sd.drawCube(10, 10, 10)
     for i in range(18):
         sd.rotate('x')
 
@@ -48,15 +48,16 @@ class ShapeDrawer:
         }
         
     def drawCube(self, l, w, h):
-        self.shape = np.zeros((
+        self.shape = np.zeros(( #change name so there no overlap
             int(self.DIMENSION_MULTIPLE_SIZE*l),
             int(self.DIMENSION_MULTIPLE_SIZE*h),
             int(self.DIMENSION_MULTIPLE_SIZE*w),
             ))
+        grid_size = np.shape(self.shape)
         self.center = {
-            'x': self.shape[0]/2),
-            'y': self.shape[1]/2),
-            'z': self.shape[2]/2),
+            'x': int(grid_size[0]/2),
+            'y': int(grid_size[1]/2),
+            'z': int(grid_size[2]/2),
         }
         x0 = self.center['x'] - l/2
         x1 = self.center['x'] + l/2
