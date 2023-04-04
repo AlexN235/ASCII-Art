@@ -2,27 +2,25 @@
 import numpy as np
 import os
 import time
+import sys
 from ascii_converter import ASCIIConverter
 from shape_drawer import ShapeDrawer
 
-def main():
-    displayer = ASCIIDisplayer('cube')
+def main(args):
+    displayer = ASCIIDisplayer(*args[1:])
     displayer.displayGif()
-
     """
     TO DO:
-        - make displayGif function change the image change based on time.
         - rotated along multiple axis.
-        - 
     """
 class ASCIIDisplayer:
-    ANIMATION_TIMER = 0.5
+    ANIMATION_TIMER = 0.1
     def __init__(self, shape = 'halfsphere'):
         self.drawer = ShapeDrawer()
         if shape == 'halfsphere':
            self.drawer.drawHalfSphere(10)
         elif shape == 'cube':
-            self.drawer.drawCube(10, 10, 10)
+            self.drawer.drawCube(20, 20, 20)
         self.converter = ASCIIConverter(self.drawer.project(), 1)
         self.converter.convert()
          
@@ -46,10 +44,11 @@ class ASCIIDisplayer:
         end = True
         while(end):
             self.display()
-            self.drawer.rotate('x')
+            self.drawer.rotate('z')
             self.converter = ASCIIConverter(self.drawer.project(), 1)
             self.converter.convert()
             time.sleep(self.ANIMATION_TIMER)
 
 if __name__ == "__main__":
-    main()
+    args = sys.argv
+    main(args)

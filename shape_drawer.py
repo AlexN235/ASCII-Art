@@ -2,15 +2,36 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import math
+import time
 
 def main():
+    """ 
+    st = time.time()
     sd = ShapeDrawer()
-    sd.drawCube(10, 10, 10)
-    for i in range(18):
-        sd.rotate('x')
+    sd.drawCube(50, 50, 50)
+    et = time.time()
+    #for i in range(20):
+    #    sd.rotate('x')
 
     plot3D(sd.getShape())
-    print(sd.project())
+    print(et-st)
+    """
+    sd = ShapeDrawer()
+    sd.drawCubeByFunction(10, 10, 10)
+    #for i in range(12):
+    #    sd.rotatePoints('x')
+    plot3D(sd.shape)
+    
+    a = np.array([0, 0, 0])
+    b = np.array([0, 8, 0])
+    c = np.array([0, 0, 8])
+    d = np.array([0, 8, 8])
+    
+    ab = np.unique(np.linspace(a, b, dtype=int), axis=0)
+    cd = np.unique(np.linspace(c, d, dtype=int), axis=0)
+    
+    full = np.unique(np.linspace(ab, cd, dtype=int), axis=0)
+    plot3D(full)
     
 def plot3D(shape):
     ## Plots down a shape based on 3d matrix
@@ -18,12 +39,12 @@ def plot3D(shape):
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    x, y, z = shape.nonzero()
+    #x, y, z = shape.nonzero()  # old method
+    x, y, z = shape.transpose() # new method
     ax.scatter(x, y, z, c=z, alpha=1)
     fig.show()
     
     i = input("press enter")
-
 
 class ShapeDrawer:
     """
@@ -31,6 +52,9 @@ class ShapeDrawer:
     shapes in a 3D numpy matrix. Rotate shapes on different axis.
     """
     DIMENSION_MULTIPLE_SIZE = 1.5
+    NUMBER_OF_ROTATIONS = 16
+    RADIANS = 2*math.pi/NUMBER_OF_ROTATIONS # rotates 16 times
+    
     
     def __init__(self):
         self.shape = []
@@ -47,6 +71,79 @@ class ShapeDrawer:
             'z': 2,
         }
         
+    def drawCubeByFunction(self, l, w, h):
+        grid_size = [l*1.5, w*1.5, h*1.5]
+        # One side of the cube
+        self.shape.append((l, 0, h))    # A
+        self.shape.append((l, w, h))    # B
+        self.shape.append((l, 0, 0))    # C
+        self.shape.append((l, w, 0))    # D
+        # Other side of the cube
+        self.shape.append((0, 0, h))    # E
+        self.shape.append((0, w, h))    # F
+        self.shape.append((0, 0, 0))    # G
+        self.shape.append((0, w, 0))    # H
+        self.shape = np.array(self.shape)
+        
+    def rotatePoints(self, rotation_axis):
+        self.times_rotated = (self.times_rotated + 1) % self.NUMBER_OF_ROTATIONS
+        r = self.RADIANS*self.times_rotated
+        rotation_array = np.array([[math.cos(r), -math.sin(r), 0],
+                                   [math.sin(r), math.cos(r), 0],
+                                   [0, 0, 1],
+                                   ])
+        self.shape = np.dot(self.shape, rotation_array)
+        
+    def _findPlane(self, p1, p2, p3):
+        v1 = p3-p1
+        v2 = p2-p1
+        
+        cp = np.cross(v1, v2)
+        
+        d = np.dot(cp, p1)
+        return cp, d #(cp = A, B, C)
+        
+    def _findPointInPlane(self, p1, p2, p3):
+        in_plane = []
+        cp, d = self._findPlane(p1, p2 ,p3)
+        print(cp, d)
+        for point in self.shape:    
+            if((point.dot(p3) + d) == 0):
+                print((point.dot(p3) + d),(point.dot(p3) + d) == 0)
+                in_plane.append(point)
+        return in_plane
+        
+    def _cornersToSquares(self):
+        c = self.shape
+        self._fillInPolygon(c[0], c[1], c[4], c[5])
+        self._fillInPolygon(c[0], c[1], c[2], c[3])
+        self._fillInPolygon(c[2], c[0], c[6], c[4])
+        self._fillInPolygon(c[6], c[7], c[4], c[5])
+        self._fillInPolygon(c[6], c[7], c[2], c[3])
+        self._fillInPolygon(c[7], c[5], c[3], c[1])
+   
+    def _drawPoint(self, x, y, z, a):
+        print('drawPoint incomplete')
+    
+    def _fillInPolygon(self, p1, p2, p3, p4):
+        """ input: p1 and p2 are one line and p3 p4 is a parallel line """ 
+        print("TO DO")
+        
+    def _findCubeNeighbours(self):
+        """ Use at initialization, only works if corners are squared with the axis """
+        # Find two opposing corners
+        corners = self.shape
+        c1 = np.array(corners[0])
+        c2 = np.array([x for x in corners if (c1 != x).all()][0])
+        # Find the three points that are neighbours for those opposing corner
+        side1 = [x for x in corners if np.count_nonzero((c1 == x)) == len(c1)-1]
+        side2 = [x for x in corners if np.count_nonzero((c2 == x)) == len(c2)-1]
+        side1.insert(0, c1)
+        side2.insert(0, c2)
+        # return two list where the head of the list are the opposing corners.
+        self._cornersToPlane(side1, side2)
+        return side1, side2
+
     def drawCube(self, l, w, h):
         self.shape = np.zeros(( #change name so there no overlap
             int(self.DIMENSION_MULTIPLE_SIZE*l),
@@ -124,8 +221,8 @@ class ShapeDrawer:
             x = idx[self._axis[t1]] - self.center[t1]
             y = idx[self._axis[t2]] - self.center[t2]
             radian = math.pi/8*self.times_rotated
-            new_x = int(x*math.cos(radian) - y*math.sin(radian) + self.center[t1]) 
-            new_y = int(x*math.sin(radian) + y*math.cos(radian) + self.center[t2])
+            new_x = int(x*math.cos(RADIANS*self.times_rotated) - y*math.sin(RADIANS*self.times_rotated) + self.center[t1]) 
+            new_y = int(x*math.sin(RADIANS*self.times_rotated) + y*math.cos(RADIANS*self.times_rotated) + self.center[t2])
             self._applyRotatedPoints(rotation_axis, idx, new_x, new_y, new_shape)
         
         self.rotated_shape = new_shape
