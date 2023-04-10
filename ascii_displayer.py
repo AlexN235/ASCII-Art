@@ -21,6 +21,7 @@ class ASCIIDisplayer:
            self.drawer.drawHalfSphere(10)
         elif shape == 'cube':
             self.drawer.drawCube(20, 20, 20)
+            self.drawer.project()
         self.converter = ASCIIConverter(self.drawer.project(), 1)
         self.converter.convert()
          

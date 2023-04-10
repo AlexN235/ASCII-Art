@@ -7,13 +7,16 @@ import time
 def main():
     st = time.time()
     sd = ShapeDrawer()
-    sd.drawCubeByFunction(50, 50, 50)
-    for i in range(50):
-        sd.rotatePoints('x')
+    sd.drawCube(50, 50, 50)
+    for i in range(3):
+        sd.rotate('x')
     et = time.time()
     sd._cornersToSquares()
-    plot3D(np.array(sd.rotated_shape))
- 
+    plot3D(np.array(sd.getShape()))
+    for i in sd.project():
+        print(i)
+
+
 def plot3D(shape):
     ## Plots down a shape based on 3d matrix
     ## For testing only
@@ -39,6 +42,7 @@ class ShapeDrawer:
         self.shape = []
         self.rotated_shape = []
         self.times_rotated = 0
+        self.grid_size = []
         self.center = {
             'x': 0,
             'y': 0,
@@ -50,38 +54,46 @@ class ShapeDrawer:
             'z': 2,
         }
         
-    def drawCubeByFunction(self, l, w, h):
-        grid_size = [l*1.5, w*1.5, h*1.5]
+    def drawCube(self, l, w, h):
+        self.grid_size = [int((l+1)*1.5), int((w+1)*1.5), int((h+1)*1.5)]
         self.rotated_shape = []
         # One side of the cube
-        self.shape.append((l, 0, h, 1))    # A
-        self.shape.append((l, w, h, 1))    # B
-        self.shape.append((l, 0, 0, 1))    # C
-        self.shape.append((l, w, 0, 1))    # D
+        self.shape.append(np.array((l, 0, h, 1)))    # A
+        self.shape.append(np.array((l, w, h, 1)))    # B
+        self.shape.append(np.array((l, 0, 0, 1)))    # C
+        self.shape.append(np.array((l, w, 0, 1)))    # D
         # Other side of the cube
-        self.shape.append((0, 0, h, 1))    # E
-        self.shape.append((0, w, h, 1))    # F
-        self.shape.append((0, 0, 0, 1))    # G
-        self.shape.append((0, w, 0, 1))    # H
-        self.shape = np.array(self.shape)
+        self.shape.append(np.array((0, 0, h, 1)))    # E
+        self.shape.append(np.array((0, w, h, 1)))    # F
+        self.shape.append(np.array((0, 0, 0, 1)))    # G
+        self.shape.append(np.array((0, w, 0, 1)))    # H
+        self.shape = self.shape
+        self.rotated_shape = self.shape
         
-    def rotatePoints(self, rotation_axis):
+    def rotate(self, rotation_axis):
+        self.rotated_shape = self.shape
+        self._translation(-self.grid_size[0]/3, -self.grid_size[1]/3, -self.grid_size[2]/3)
+        self._rotation(rotation_axis)
+        self._translation(self.grid_size[0]/3, self.grid_size[1]/3, self.grid_size[2]/3)
+        
+    def _rotation(self, rotation_axis):
         self.times_rotated = (self.times_rotated + 1) % self.NUMBER_OF_ROTATIONS
         r = self.RADIANS*self.times_rotated
-        self.rotated_shape = []
-        rotation_array = np.array([[math.cos(r), -math.sin(r), 0, 0],
-                                   [math.sin(r), math.cos(r), 0, 0],
+        rotation_array = np.array([[math.cos(r), math.sin(r), 0, 0],
+                                   [-math.sin(r), math.cos(r), 0, 0],
                                    [0, 0, 1, 0],
                                    [0, 0, 0, 1],
                                    ])
-        self.rotated_shape = list(np.dot(self.shape, rotation_array))
+        self.rotated_shape = list(np.dot(self.rotated_shape, rotation_array)) 
         
-    def projectionUsingMatrix(self):
-        projection_array = np.array([[1, 0, 0, 0],
-                                   [0, 1, 0, 0],
-                                   [0, 0, 1, 0],
-                                   [0, 0, 1, 0],
-                                   ])
+        
+    def _translation(self, x, y, z):
+        translation_array = np.array([[1, 0, 0, 0],
+                                      [0, 1, 0, 0],
+                                      [0, 0, 1, 0],
+                                      [x, y, z, 1],
+                                      ])
+        self.rotated_shape = list(np.dot(self.rotated_shape, translation_array))
         
     def _findPlane(self, p1, p2, p3):
         v1 = p3-p1
@@ -156,12 +168,15 @@ class ShapeDrawer:
         """
         project 3D model into 2D image by simply flatten on an plane.
         """
-        res = np.zeros(np.shape(self.rotated_shape[0]))
-        for i, layer in enumerate(self.rotated_shape):
-            depth = i / np.shape(self.shape)[0]
-            for j, row in enumerate(layer):
-                res[j] = list(map(lambda x, y: x if x > 0.05 else y*depth, res[j],row))
-        return np.array(list(map(lambda x: 255*(1-x), res)))
+        self._cornersToSquares()
+        self._translation(self.grid_size[0]/6, self.grid_size[1]/6, self.grid_size[2]/6)
+        res = np.zeros(np.array(self.grid_size[0:2]))
+        print(res.shape)
+        for pixel in self.rotated_shape:
+            grey_value = int(self._toHexScale((self.grid_size[2] - pixel[2])/self.grid_size[2]))
+            if res[int(pixel[0])][int(pixel[1])] < grey_value:
+                res[int(pixel[0])][int(pixel[1])] = grey_value
+        return res
         
     def _toHexScale(self, value: int):
         if value > 1 or value < 0:
