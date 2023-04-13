@@ -9,18 +9,15 @@ from shape_drawer import ShapeDrawer
 def main(args):
     displayer = ASCIIDisplayer(*args[1:])
     displayer.displayGif()
-    """
-    TO DO:
-        - rotated along multiple axis.
-    """
+
 class ASCIIDisplayer:
     ANIMATION_TIMER = 0.1
     def __init__(self, shape = 'halfsphere'):
-        self.drawer = ShapeDrawer()
-        if shape == 'halfsphere':
-           self.drawer.drawHalfSphere(10)
-        elif shape == 'cube':
-            self.drawer.drawCube(20, 20, 20)
+        if shape == 'cube':
+            self.drawer = ShapeDrawer('cube')
+            self.drawer.project()
+        else:
+            self.drawer = ShapeDrawer('cube')
             self.drawer.project()
         self.converter = ASCIIConverter(self.drawer.project(), 1)
         self.converter.convert()
@@ -38,16 +35,16 @@ class ASCIIDisplayer:
                 print(x+' ', sep='', end='', flush=True)
             print("")
             
-    def displayGif(self, shape = 'halfsphere'):
+    def displayGif(self, shape = 'cube'):
         """
         displays an animated gif of a rotating shape in ascii art.
         """
         end = True
         while(end):
-            self.display()
-            self.drawer.rotate('z')
+            self.drawer.rotate(['x', 'y', 'z'])
             self.converter = ASCIIConverter(self.drawer.project(), 1)
             self.converter.convert()
+            self.display()
             time.sleep(self.ANIMATION_TIMER)
 
 if __name__ == "__main__":

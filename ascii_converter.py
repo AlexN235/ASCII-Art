@@ -11,7 +11,8 @@ class ASCIIConverter:
     res = s.get_ascii()
     """
     def __init__(self, img, box_size = 10):
-        self.keys = list("@$#*!=;:~-,. ")
+        #self.keys = list("@$#*!=;:~-,. ")
+        self.keys = list(" .,-~:;=!*#$@")
         self.keys_len = len(self.keys)
         self.box_size = box_size
         self.picture = []   # ascii image
