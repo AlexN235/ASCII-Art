@@ -5,15 +5,10 @@ from PIL import Image
 class ASCIIConverter:
     """
     Takes an image or 2D array and converts it into an ascii image.
-    Ex. 
-    s = ASCIIConverter('greygrid.png')
-    s.convert()
-    res = s.get_ascii()
     """
     def __init__(self, img, box_size = 10):
-        #self.keys = list("@$#*!=;:~-,. ")
-        self.keys = list(" .,-~:;=!*#$@")
-        self.keys_len = len(self.keys)
+        self.ascii_characters = list(" .,-~:;=!*#$@")
+        self.character_len = len(self.ascii_characters)
         self.box_size = box_size
         self.picture = []   # ascii image
         
@@ -63,8 +58,8 @@ class ASCIIConverter:
         for i in range(w):
             row_temp = []
             for j in range(l):
-                b = int(self.picture[j][i]*(self.keys_len-1)/255)
-                row_temp.append(self.keys[b])
+                b = int(self.picture[j][i]*(self.character_len-1)/255)
+                row_temp.append(self.ascii_characters[b])
             res.append(row_temp)
         self.picture = res
         

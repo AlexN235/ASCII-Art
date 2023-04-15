@@ -3,47 +3,63 @@ import numpy as np
 import math
 
 class Shape:
+    """
+    Class representing the different shapes that will be drawn. The shape is represented
+    by a few key points. All points are generated during output in the ShapeDrawer class.
+    """
     NUMBER_OF_ROTATIONS = 32
     RADIANS = 2*math.pi/NUMBER_OF_ROTATIONS 
     SHAPE_TO_GRID_MULTIPLIER = 1.7
     
     def __init__(self):
-        self.shape = []
-        self.rotated_shape = []
+        self.shape = ''
+        self.key_points = []
+        self.transformed_points = []
         self.grid_size = []
         self.times_rotated = {
             'x': 0,
             'y': 0,
             'z': 0,
         }
-        self._axis = {
-            'x': 0,
-            'y': 1,
-            'z': 2,
-        }
-    
+        
+    # Getters
+    def getShapeName(self):
+        return self.shape
     def getGridSize(self):
         return self.grid_size
     def getTimesRotated(self, axis):
         return self.times_rotated[axis]
     def getAllTimesRotated(self):
         return self.times_rotated
-    def getShape(self):
-        return self.rotated_shape
-        
+    def getKeyPoints(self):
+        return self.transformed_points
+    # Setters
     def setGridSize(self, x, y, z):
         grid_size = [x, y, z]
     def setTimesRotated(self, axis, val):
         self.times_rotated[axis] = val
         
+    def translateToDisplay(self):
+        """
+        Translate the current shape to coordinates to be easily projected.
+        """
+        self._translation(self.grid_size[0]/6, self.grid_size[1]/6, self.grid_size[2]/6)
+        
     def rotate(self, rotation_axis):
-        self.rotated_shape = self.shape
+        """
+        Rotates the shape around the center of the shape.
+        """
+        self.transformed_points = self.key_points
         m = self.SHAPE_TO_GRID_MULTIPLIER*2
         self._translation(-self.grid_size[0]/m, -self.grid_size[1]/m, -self.grid_size[2]/m)
         self._rotation(rotation_axis)
         self._translation(self.grid_size[0]/m, self.grid_size[1]/m, self.grid_size[2]/m)
         
     def _rotation(self, rotation_axis):
+        """
+        input: a list containing either 'x', 'y', 'z' representing the x, y, z axis respectively
+        Rotates current key points representing the shape by the axis in the input.
+        """
         if 'x' in rotation_axis:
             self._rotateXAxis()
         if 'y' in rotation_axis:
@@ -59,7 +75,7 @@ class Shape:
                                    [0, -math.sin(r), math.cos(r), 0],
                                    [0, 0, 0, 1],
                                    ])
-        self.rotated_shape = list(np.dot(self.rotated_shape, rotation_array)) 
+        self.transformed_points = list(np.dot(self.transformed_points, rotation_array)) 
 
     def _rotateYAxis(self):
         self.times_rotated['y'] = (self.times_rotated['y'] + 1) % self.NUMBER_OF_ROTATIONS
@@ -69,7 +85,7 @@ class Shape:
                                    [math.sin(r), 0, math.cos(r), 0],
                                    [0, 0, 0, 1],
                                    ])
-        self.rotated_shape = list(np.dot(self.rotated_shape, rotation_array)) 
+        self.transformed_points = list(np.dot(self.transformed_points, rotation_array)) 
 
     def _rotateZAxis(self):
         self.times_rotated['z'] = (self.times_rotated['z'] + 1) % self.NUMBER_OF_ROTATIONS
@@ -79,7 +95,7 @@ class Shape:
                                    [0, 0, 1, 0],
                                    [0, 0, 0, 1],
                                    ])
-        self.rotated_shape = list(np.dot(self.rotated_shape, rotation_array))         
+        self.transformed_points = list(np.dot(self.transformed_points, rotation_array))         
         
     def _translation(self, x, y, z):
         translation_array = np.array([[1, 0, 0, 0],
@@ -87,4 +103,4 @@ class Shape:
                                       [0, 0, 1, 0],
                                       [x, y, z, 1],
                                       ])
-        self.rotated_shape = list(np.dot(self.rotated_shape, translation_array))
+        self.transformed_points = list(np.dot(self.transformed_points, translation_array))

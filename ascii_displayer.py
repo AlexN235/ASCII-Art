@@ -12,11 +12,11 @@ def main(args):
 
 class ASCIIDisplayer:
     ANIMATION_TIMER = 0.1
-    def __init__(self, shape = 'halfsphere'):
+    def __init__(self, shape = 'cube'):
         if shape == 'cube':
             self.drawer = ShapeDrawer('cube')
             self.drawer.project()
-        else:
+        else:   # default to cube shape
             self.drawer = ShapeDrawer('cube')
             self.drawer.project()
         self.converter = ASCIIConverter(self.drawer.project(), 1)
