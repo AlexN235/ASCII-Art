@@ -77,23 +77,15 @@ class ShapeDrawer:
             return 0 # error
         return value*255
   
+    def drawShape(self, polygons):
+        for point in polygons:
+            a, b, c = point
+            self._fillInPolygon(a, b, c)
+        
     def _cornersToSquares(self):
-        """
-        Takes the corner coordinates of a square and draws the squares polygons for the cube.
-        """
-        c = self.shape.getKeyPoints()
-        self._squaresToPolygons(c[0], c[1], c[4], c[5])
-        self._squaresToPolygons(c[0], c[1], c[2], c[3])
-        self._squaresToPolygons(c[2], c[0], c[6], c[4])
-        self._squaresToPolygons(c[6], c[7], c[4], c[5])
-        self._squaresToPolygons(c[6], c[7], c[2], c[3])
-        self._squaresToPolygons(c[7], c[5], c[3], c[1])
-        
-    def _squaresToPolygons(self, p1, p2, p3, p4):
-        
-        self._fillInPolygon(p1, p2, p3)
-        self._fillInPolygon(p3, p4, p2)
-        
+        points = self.shape.generateShape()
+        self.drawShape(points)
+
     def _fillInPolygon(self, p1, p2, p3):
         """ input: p1 to p2 is a line parallel to the line p3 to p4. """ 
         l1 = np.unique(np.linspace(p1, p2, dtype=int), axis=0)
