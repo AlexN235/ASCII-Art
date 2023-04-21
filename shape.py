@@ -9,7 +9,7 @@ class Shape:
     """
     NUMBER_OF_ROTATIONS = 32
     RADIANS = 2*math.pi/NUMBER_OF_ROTATIONS 
-    SHAPE_TO_GRID_MULTIPLIER = 1.7
+    SHAPE_TO_GRID_MULTIPLIER = 2
     
     def __init__(self):
         self.shape = ''
@@ -43,21 +43,19 @@ class Shape:
         """
         Translate the current shape to coordinates to be easily projected.
         """
-        self._translation(self.grid_size[0]/6, self.grid_size[1]/6, self.grid_size[2]/6)
-        
+        m = self.SHAPE_TO_GRID_MULTIPLIER
+        self._translation(self.grid_size[0]/m, self.grid_size[1]/m, self.grid_size[2]/m)
+
     def rotate(self, rotation_axis):
         """
         Rotates the shape around the center of the shape.
         """
         self.transformed_points = self.key_points
-        m = self.SHAPE_TO_GRID_MULTIPLIER*2
-        self._translation(-self.grid_size[0]/m, -self.grid_size[1]/m, -self.grid_size[2]/m)
         self._rotation(rotation_axis)
-        self._translation(self.grid_size[0]/m, self.grid_size[1]/m, self.grid_size[2]/m)
         
     def _rotation(self, rotation_axis):
         """
-        input: a list containing either 'x', 'y', 'z' representing the x, y, z axis respectively
+        Input: a list containing either 'x', 'y', 'z' representing the x, y, z axis respectively
         Rotates current key points representing the shape by the axis in the input.
         """
         if 'x' in rotation_axis:
@@ -104,3 +102,9 @@ class Shape:
                                       [x, y, z, 1],
                                       ])
         self.transformed_points = list(np.dot(self.transformed_points, translation_array))
+        
+    def _squaresToPolygons(self, p1, p2, p3, p4):
+        points = []
+        points.append(np.array([p1, p2, p3]))
+        points.append(np.array([p3, p4, p2]))
+        return points

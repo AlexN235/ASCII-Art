@@ -18,15 +18,15 @@ class Cube(Shape):
                           int(h*self.SHAPE_TO_GRID_MULTIPLIER)]
         self.transformed_points = []
         # One side of the cube
-        self.key_points.append(np.array((l, 0, h, 1)))    # A
-        self.key_points.append(np.array((l, w, h, 1)))    # B
-        self.key_points.append(np.array((l, 0, 0, 1)))    # C
-        self.key_points.append(np.array((l, w, 0, 1)))    # D
+        self.key_points.append(np.array((l/2, -w/2, h/2, 1)))   # A
+        self.key_points.append(np.array((l/2, w/2, h/2, 1)))    # B
+        self.key_points.append(np.array((l/2, -w/2, -h/2, 1)))  # C
+        self.key_points.append(np.array((l/2, w/2, -h/2, 1)))   # D
         # Other side of the cube
-        self.key_points.append(np.array((0, 0, h, 1)))    # E
-        self.key_points.append(np.array((0, w, h, 1)))    # F
-        self.key_points.append(np.array((0, 0, 0, 1)))    # G
-        self.key_points.append(np.array((0, w, 0, 1)))    # H
+        self.key_points.append(np.array((-l/2, -w/2, h/2, 1)))  # E
+        self.key_points.append(np.array((-l/2, w/2, h/2, 1)))   # F
+        self.key_points.append(np.array((-l/2, -w/2, -h/2, 1))) # G
+        self.key_points.append(np.array((-l/2, w/2, -h/2, 1)))  # H
         self.transformed_points = self.key_points
         
     def generateShape(self):

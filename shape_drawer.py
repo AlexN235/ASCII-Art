@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 import math
 import time
 from cube import Cube
+from donut import Donut
 
 def main():
     return
@@ -29,11 +30,16 @@ class ShapeDrawer:
         self.pixels = []
         if shape == 'cube':
             self.shape = self._drawCube(20, 20, 20)
+        elif shape == 'donut':
+            self.shape = self._drawDonut(20)
         else:   
             self.shape = self._drawCube(20, 20, 20) # default shape
            
     def _drawCube(self, l, w, h):
         return Cube(l, w, h)
+        
+    def _drawDonut(self, r):
+        return Donut(r)
     
     def rotate(self, axis):
         """
@@ -62,6 +68,16 @@ class ShapeDrawer:
                 res[int(pixel[0])][int(pixel[1])] = grey_value
         return res
         
+    def getMaxMin(self):
+        low = float('inf')
+        hi = float('-inf')
+        for pixel in self.pixels:
+            if pixel[0] > hi:
+                hi = pixel[0]
+            if pixel[0] < low:
+                low = pixel[0]
+        return hi
+    
     def translateToDisplay(self):
         self.shape.translateToDisplay()
         

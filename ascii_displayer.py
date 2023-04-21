@@ -15,12 +15,10 @@ class ASCIIDisplayer:
     def __init__(self, shape = 'cube'):
         if shape == 'cube':
             self.drawer = ShapeDrawer('cube')
-            self.drawer.project()
+        elif shape == 'donut':
+            self.drawer = ShapeDrawer('donut')
         else:   # default to cube shape
             self.drawer = ShapeDrawer('cube')
-            self.drawer.project()
-        self.converter = ASCIIConverter(self.drawer.project(), 1)
-        self.converter.convert()
          
     def display(self):
         """
