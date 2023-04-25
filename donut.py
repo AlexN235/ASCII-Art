@@ -2,84 +2,78 @@
 import numpy as np
 import math
 from shape import Shape
-from matplotlib import pyplot as plt
-
-
-def main():
-    radius = 20
-    r2 = radius/2
-    d = Donut(20)
-    points = d.key_points
-    print(points[0][0])
-
-
-        
-def plot3D(shape):
-    ## Plots down a shape based on 3d matrix
-    ## For testing only
-
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    x, y, z ,a = np.array(shape).transpose()
-    ax.scatter(x, y, z, c=z, alpha=1)
-    fig.show()
-    
-    i = input("press enter")
-
-    
-def rotateTest(points):
-        r = 2*math.pi/4
-        rotation_array = np.array([[1, 0, 0, 0],
-                                   [0, math.cos(r), math.sin(r), 0],
-                                   [0, -math.sin(r), math.cos(r), 0],
-                                   [0, 0, 0, 1],
-                                   ])
-        res = list(np.dot(points, rotation_array)) 
-        return res
 
 class Donut(Shape):
     """
-    Class representing the Cube shape.
+    Class representing the Donut shape.
     """
+    NUMBER_OF_POINTS_IN_A_CIRCLE = 12
     def __init__(self, radius):
         super().__init__()
+        self.mesh_array_shape = None
         self.drawDonut(radius)
         self.shape = 'donut'
-        
+          
     def drawDonut(self, r):
-        self.grid_size = [int(2*r*self.SHAPE_TO_GRID_MULTIPLIER),
-                          int(2*r*self.SHAPE_TO_GRID_MULTIPLIER),
-                          int(2*r*self.SHAPE_TO_GRID_MULTIPLIER)]
-        self.key_points = self._generateMesh(r)
-        self.transformed_points = self.key_points
-        
+        m = int(2*r*self.SHAPE_TO_GRID_MULTIPLIER)
+        self.setGridSize(m, m, m)
+        self.mesh_points = list(self._generateMesh(r))
+
     def generateShape(self):
         """
         Takes the corner coordinates of a square and draws the squares polygons for the cube.
         """
-        return self.key_points
+        c = np.array(self.getTransformedMesh()).reshape(self.getMeshArrayShape())
+        polygons = []
+        for i in range(self.NUMBER_OF_POINTS_IN_A_CIRCLE):
+            next_i = self._getNextIndex(i, self.NUMBER_OF_POINTS_IN_A_CIRCLE)
+            for j in range(self.NUMBER_OF_POINTS_IN_A_CIRCLE):
+                next_j = self._getNextIndex(j, self.NUMBER_OF_POINTS_IN_A_CIRCLE)
+                polygons.extend(self._squaresToPolygons(c[i][j],
+                                                        c[next_i][j],
+                                                        c[i][next_j],
+                                                        c[next_i][next_j],
+                                                        ))
+        return polygons
+        
+    def getMeshArrayShape(self):
+        return self.mesh_array_shape
+    def setMeshArrayShape(self, shape):
+        self.mesh_array_shape = shape
+        
+    def _getNextIndex(self, index, total):
+        return 0 if index+1 == total else index+1
         
     def _generateMesh(self, radius):
         """
         Creates the mesh points of the donut by drawing an initial circle on the xy-plane,
         translating by the radius in the x direction and rotating around the y-axis.
         """
-        points_used = 20
-        n = points_used-(points_used%4)
+        # Draws initial circle
+        circle_points = self.NUMBER_OF_POINTS_IN_A_CIRCLE
+        n = circle_points-(circle_points%4)
         initial_circle = self._getAllCirclePoints(radius, n)
-        # translate by raidus
-        translated_circle = self._translatePoints(initial_circle, radius)
-        # rotate by z axis and get next points for meshes
+        
+        # Translate by raidus
+        translated_circle = self._translateCircle(initial_circle, radius)
+        
+        # Rotate by y axis and get next points for meshes
         res = []
         res.append(translated_circle)
         next_circle = translated_circle
         for i in range(n):
             next_circle = self._nextPointOnDonut(next_circle, n)
             res.append(next_circle)
-        # add meshes to list and return
-        return res
+            
+        # Add meshes to list and track original shape.
+        self.setMeshArrayShape(np.array(res).shape)
+        m = self.getMeshArrayShape()
+        return np.array(res).reshape(m[0]*m[1], m[2])
     
     def _getAllCirclePoints(self, r, total_points):
+        """
+        Get mesh points for a 2D circle given the north, south, west, east points of the circle.
+        """
         res = []
         n = total_points-(total_points%4)
         circle = self._getCirclePoints(r)
@@ -92,6 +86,9 @@ class Donut(Shape):
         return res
         
     def _getCirclePoints(self, r):
+        """
+        Returns the north, east, south, west points of a circle center around the origin.
+        """
         r2 = r/2
         circle = [np.array([r2, 0 ,0 ,1]),
                 np.array([0, r2 ,0 ,1]),
@@ -110,8 +107,7 @@ class Donut(Shape):
                                    [0, 0, 1, 0],
                                    [0, 0, 0, 1],
                                    ])
-        res = list(np.dot(points, rotation_array)) 
-        return res
+        return list(np.dot(points, rotation_array)) 
         
     def _nextPointOnDonut(self, point, number_of_rotations):
         """
@@ -123,10 +119,9 @@ class Donut(Shape):
                                    [math.sin(r), 0, math.cos(r), 0],
                                    [0, 0, 0, 1],
                                    ])
-        res = list(np.dot(point, rotation_array)) 
-        return res
+        return list(np.dot(point, rotation_array)) 
         
-    def _translatePoints(self, points, r):
+    def _translateCircle(self, points, r):
         """
         Translates in the x direction by the radius.
         """
@@ -137,5 +132,3 @@ class Donut(Shape):
                                       ])
         return list(np.dot(points, translation_array))
     
-if __name__ == "__main__":
-    main()

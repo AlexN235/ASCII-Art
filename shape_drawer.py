@@ -6,21 +6,6 @@ import time
 from cube import Cube
 from donut import Donut
 
-def main():
-    return
-
-def plot3D(shape):
-    ## Plots down a shape based on 3d matrix
-    ## For testing only
-
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    x, y, z ,a = shape.transpose()
-    ax.scatter(x, y, z, c=z, alpha=1)
-    fig.show()
-    
-    i = input("press enter")
-
 class ShapeDrawer:
     """
     Draw different shapes: cube, sphere, cylinder etc. Represents these
@@ -31,7 +16,7 @@ class ShapeDrawer:
         if shape == 'cube':
             self.shape = self._drawCube(20, 20, 20)
         elif shape == 'donut':
-            self.shape = self._drawDonut(20)
+            self.shape = self._drawDonut(10)
         else:   
             self.shape = self._drawCube(20, 20, 20) # default shape
            
@@ -59,78 +44,45 @@ class ShapeDrawer:
         project 3D model into 2D image by simply flatten on an plane.
         """
         grid_size = self.shape.getGridSize()
-        self.translateToDisplay()
+        
+        self._translateToDisplay()
         self._createShapePoints()
-        res = np.zeros(np.array(grid_size[0:2]))
+        image2D = np.zeros(np.array(grid_size[0:2]))
         for pixel in self.pixels:
             grey_value = int(self._toHexScale((grid_size[2] - pixel[2])/grid_size[2]))
-            if res[int(pixel[0])][int(pixel[1])] < grey_value:
-                res[int(pixel[0])][int(pixel[1])] = grey_value
-        return res
-        
-    def getMaxMin(self):
-        low = float('inf')
-        hi = float('-inf')
-        for pixel in self.pixels:
-            if pixel[0] > hi:
-                hi = pixel[0]
-            if pixel[0] < low:
-                low = pixel[0]
-        return hi
-    
-    def translateToDisplay(self):
+            x, y = int(pixel[0]), int(pixel[1])
+            if image2D[x][y] < grey_value:
+                image2D[x][y] = grey_value
+        return image2D
+
+    ### In class functions ###
+    def _translateToDisplay(self):
         self.shape.translateToDisplay()
         
     def _createShapePoints(self):
         """
         Generates all points from the key points of the shape.
         """
-        if self.shape.getShapeName() == 'cube':
-            self._cornersToSquares()
+        self._cornersToSquares()
         
     def _toHexScale(self, value: int):
         if value > 1 or value < 0:
             return 0 # error
         return value*255
   
-    def drawShape(self, polygons):
+    def _cornersToSquares(self):
+        points = self.shape.generateShape()   
+        self._drawShape(points)
+        
+    def _drawShape(self, polygons):
         for point in polygons:
             a, b, c = point
             self._fillInPolygon(a, b, c)
-        
-    def _cornersToSquares(self):
-        points = self.shape.generateShape()
-        self.drawShape(points)
 
     def _fillInPolygon(self, p1, p2, p3):
         """ input: p1 to p2 is a line parallel to the line p3 to p4. """ 
         l1 = np.unique(np.linspace(p1, p2, dtype=int), axis=0)
-
         full = np.unique(np.linspace(l1, p3, dtype=int), axis=0)
         full = full.reshape((full.shape[0]*full.shape[1],4))
-
+        
         self.pixels.extend(list(full))
-   
-    def _drawPoint(self, x, y, z, a):
-        print('drawPoint incomplete')
-    
-    def _findPlane(self, p1, p2, p3):
-        v1 = p3-p1
-        v2 = p2-p1
-        
-        cp = np.cross(v1, v2)
-        
-        d = np.dot(cp, p1)
-        return cp, d #(cp = A, B, C)
-        
-    def _findPointInPlane(self, p1, p2, p3):
-        in_plane = []
-        cp, d = self._findPlane(p1, p2 ,p3)
-        for point in self.shape:    
-            if((point.dot(p3) + d) == 0):
-                in_plane.append(point)
-        return in_plane
-
-         
-if __name__ == "__main__":
-    main()

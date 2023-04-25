@@ -23,7 +23,17 @@ class ASCIIConverter:
         else:
             ## return error
             print("fail to grab image")
-
+            
+    def convert(self):
+        """ Converts the original image/2D array into an ascii image """
+        self._image_to_blocks()
+        self._grey_to_ascii()
+    
+    def get_ascii(self):
+        """ returns the ascii representation of the image """
+        return self.picture
+        
+    ### In class functions ###
     def _convert_to_greyscale(self):
         """ Convert image to greyscale """
         self.img.convert('L')
@@ -62,13 +72,5 @@ class ASCIIConverter:
                 row_temp.append(self.ascii_characters[b])
             res.append(row_temp)
         self.picture = res
-        
-    def convert(self):
-        """ Converts the original image/2D array into an ascii image """
-        self._image_to_blocks()
-        self._grey_to_ascii()
-    
-    def get_ascii(self):
-        """ returns the ascii representation of the image """
-        return self.picture
+       
         
