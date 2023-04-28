@@ -21,7 +21,7 @@ class Donut(Shape):
 
     def generateShape(self):
         """
-        Takes the corner coordinates of a square and draws the squares polygons for the cube.
+        Draws the mesh for the shape.
         """
         c = np.array(self.getTransformedMesh()).reshape(self.getMeshArrayShape())
         polygons = []

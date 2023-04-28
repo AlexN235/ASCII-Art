@@ -6,6 +6,9 @@ import sys
 from ascii_converter import ASCIIConverter
 from shape_drawer import ShapeDrawer
 
+# python ascii_displayer.py cube
+# python ascii_displayer.py donut
+
 def main(args):
     displayer = ASCIIDisplayer(*args[1:])
     displayer.displayGif()
