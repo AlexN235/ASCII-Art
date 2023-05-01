@@ -41,12 +41,13 @@ class ASCIIDisplayer:
         displays an animated gif of a rotating shape in ascii art.
         """
         end = True
-        while(end):
+        while end:
             self.drawer.rotate(['x', 'y', 'z'])
             self.converter = ASCIIConverter(self.drawer.project(), 1)
             self.converter.convert()
             self.display()
             time.sleep(self.ANIMATION_TIMER)
+
 
 if __name__ == "__main__":
     args = sys.argv

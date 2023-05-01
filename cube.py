@@ -14,7 +14,7 @@ class Cube(Shape):
         
     def drawCube(self, l, w, h):
         m = self.SHAPE_TO_GRID_MULTIPLIER
-        self.getGridSize = [int(l*m), int(w*m), int(h*m)]
+        self.setGridSize(int(l*m), int(w*m), int(h*m))
         # One side of the cube
         self.mesh_points.append(np.array((l/2, -w/2, h/2, 1)))   # A
         self.mesh_points.append(np.array((l/2, w/2, h/2, 1)))    # B
